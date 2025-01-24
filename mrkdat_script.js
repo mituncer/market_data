@@ -1,41 +1,28 @@
-// Configuration
 const config = {
     refreshInterval: 60000,
-    frankfurterEndpoint: 'https://api.frankfurter.app/latest',
+    alphaVantageEndpoint: 'https://www.alphavantage.co/query',
+    apiKey: 'FP2GQPMOEWKAE19J', // Alpha Vantage API Key
+    bistSymbol: 'XU100.IS', // Replace with the correct symbol for BIST 100
+    glrmkSymbol: 'GLRMK.IS', // Replace with the correct symbol for GLRMK
     retryAttempts: 3,
     retryDelay: 5000
 };
 
-// Utility Functions
-function formatCurrency(number, decimals = 2) {
-    return `₺${Number(number).toFixed(decimals)}`;
+function formatCurrency(number, currency = '₺', decimals = 2) {
+    return `${currency}${Number(number).toFixed(decimals)}`;
 }
 
 function updateTimestamp() {
-    const options = { 
-        hour: '2-digit', 
-        minute: '2-digit', 
+    const options = {
+        hour: '2-digit',
+        minute: '2-digit',
         second: '2-digit',
-        hour12: false 
+        hour12: false
     };
     document.getElementById('lastUpdate').textContent = 
         `Last updated: ${new Date().toLocaleTimeString('tr-TR', options)}`;
 }
 
-function setLoadingState(isLoading) {
-    const elements = ['usdtry', 'eurtry'];
-    elements.forEach(id => {
-        const element = document.getElementById(id);
-        if (isLoading) {
-            element.textContent = 'Loading...';
-            element.classList.add('loading');
-        } else {
-            element.classList.remove('loading');
-        }
-    });
-}
-
-// API Functions
 async function fetchWithRetry(url, attempts = config.retryAttempts) {
     for (let i = 0; i < attempts; i++) {
         try {
@@ -49,85 +36,71 @@ async function fetchWithRetry(url, attempts = config.retryAttempts) {
     }
 }
 
-async function fetchForexRates() {
-    setLoadingState(true);
+async function fetchMarketData() {
     try {
-        const [eurData, usdData] = await Promise.all([
-            fetchWithRetry(`${config.frankfurterEndpoint}?from=EUR&to=TRY`),
-            fetchWithRetry(`${config.frankfurterEndpoint}?from=USD&to=TRY`)
-        ]);
+        // Fetch BIST 100 data
+        const bistData = await fetchWithRetry(
+            `${config.alphaVantageEndpoint}?function=TIME_SERIES_INTRADAY&symbol=${config.bistSymbol}&interval=1min&apikey=${config.apiKey}`
+        );
+        const bistLastValue = Object.values(bistData['Time Series (1min)'])[0]['4. close'];
+        document.querySelector('.widget .header:contains("BIST 100") + .value-group .value').textContent = 
+            formatCurrency(bistLastValue);
 
-        const usdElement = document.getElementById('usdtry');
-        const eurElement = document.getElementById('eurtry');
+        // Fetch GLRMK data
+        const glrmkData = await fetchWithRetry(
+            `${config.alphaVantageEndpoint}?function=TIME_SERIES_INTRADAY&symbol=${config.glrmkSymbol}&interval=1min&apikey=${config.apiKey}`
+        );
+        const glrmkLastValue = Object.values(glrmkData['Time Series (1min)'])[0]['4. close'];
+        document.querySelector('.widget .header:contains("GLRMK") + .value-group .value').textContent = 
+            formatCurrency(glrmkLastValue);
+    } catch (error) {
+        console.error('Error fetching market data:', error);
+    }
+}
 
-        usdElement.textContent = formatCurrency(usdData.rates.TRY, 4);
-        eurElement.textContent = formatCurrency(eurData.rates.TRY, 4);
+async function fetchForexRates() {
+    try {
+        const usdData = await fetchWithRetry(
+            `${config.alphaVantageEndpoint}?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=TRY&apikey=${config.apiKey}`
+        );
+        const eurData = await fetchWithRetry(
+            `${config.alphaVantageEndpoint}?function=CURRENCY_EXCHANGE_RATE&from_currency=EUR&to_currency=TRY&apikey=${config.apiKey}`
+        );
 
-        if (usdElement.dataset.previousValue) {
-            const previousUsd = parseFloat(usdElement.dataset.previousValue);
-            const currentUsd = usdData.rates.TRY;
-            usdElement.classList.toggle('rate-up', currentUsd > previousUsd);
-            usdElement.classList.toggle('rate-down', currentUsd < previousUsd);
-        }
-        usdElement.dataset.previousValue = usdData.rates.TRY;
+        document.getElementById('usdtry').textContent = formatCurrency(
+            usdData['Realtime Currency Exchange Rate']['5. Exchange Rate'],
+            '₺',
+            4
+        );
+        document.getElementById('eurtry').textContent = formatCurrency(
+            eurData['Realtime Currency Exchange Rate']['5. Exchange Rate'],
+            '₺',
+            4
+        );
 
         updateTimestamp();
     } catch (error) {
         console.error('Error fetching forex rates:', error);
-        const errorMessage = error.message.includes('HTTP error') 
-            ? 'Service unavailable' 
-            : 'Network error';
-        
-        document.getElementById('usdtry').textContent = errorMessage;
-        document.getElementById('eurtry').textContent = errorMessage;
-    } finally {
-        setLoadingState(false);
     }
 }
 
-// Mock data functions for demonstration
-function populateMarketData() {
-    const stockMarkets = document.getElementById('stockMarkets');
-    const commodities = document.getElementById('commodities');
-    const crypto = document.getElementById('crypto');
+// Initialize
+function initializeDashboard() {
+    fetchForexRates();
+    fetchMarketData();
 
-    // Example data - replace with real API calls
-    stockMarkets.innerHTML = `
-        <div class="market-item">
-            <span>DOW JONES</span>
-            <span class="rate-up">+1.2%</span>
-        </div>
-        <div class="market-item">
-            <span>NASDAQ</span>
-            <span class="rate-down">-0.5%</span>
-        </div>
-    `;
+    setInterval(fetchForexRates, config.refreshInterval);
+    setInterval(fetchMarketData, config.refreshInterval);
 
-    commodities.innerHTML = `
-        <div class="market-item">
-            <span>Gold</span>
-            <span class="rate-up">$1,890.50</span>
-        </div>
-        <div class="market-item">
-            <span>Oil (Brent)</span>
-            <span class="rate-down">$75.30</span>
-        </div>
-    `;
-
-    crypto.innerHTML = `
-        <div class="market-item">
-            <span>Bitcoin</span>
-            <span class="rate-up">$42,150</span>
-        </div>
-        <div class="market-item">
-            <span>Ethereum</span>
-            <span class="rate-up">$2,890</span>
-        </div>
-    `;
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(fetchForexRates);
+            clearInterval(fetchMarketData);
+        } else {
+            fetchForexRates();
+            fetchMarketData();
+        }
+    });
 }
 
-// Navigation smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        document.querySelector(this.getAttribute('
+initializeDashboard();
