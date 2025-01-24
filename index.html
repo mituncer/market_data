@@ -3,129 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Market Dashboard</title>
-    <link rel="stylesheet" href="mrkdat_styles.css">
+    <title>Financial Dashboard</title>
+    <link rel="stylesheet" href="marketstyles.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">FinDash</div>
-            <ul class="nav-links">
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li><a href="#markets">Markets</a></li>
-                <li><a href="#news">News</a></li>
-                <li><a href="#analysis">Analysis</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main>
-        <!-- Financial Dashboard Section -->
-        <section id="dashboard" class="section">
-            <h1>Market Overview</h1>
-            <div class="dashboard">
-                <!-- BIST Widget -->
-                <div class="widget">
-                    <div class="header">BIST 100</div>
-                    <div class="value-group">
-                        <div class="label">TRY Value</div>
-                        <div class="value">₺8,527.95</div>
-                    </div>
-                    <div class="value-group">
-                        <div class="label">USD Value</div>
-                        <div class="value">$284.27</div>
-                    </div>
-                </div>
-                <!-- GLRMK Widget -->
-                <div class="widget">
-                    <div class="header">GLRMK</div>
-                    <div class="value-group">
-                        <div class="label">Current Price</div>
-                        <div class="value">₺133.50</div>
-                    </div>
-                    <div class="value-group">
-                        <div class="label">Trading Hours</div>
-                        <div class="trading-hours">10:00-18:00 (TR)</div>
-                    </div>
-                </div>
-                <!-- Forex Widget -->
-                <div class="widget">
-                    <div class="header">Exchange Rates</div>
-                    <div class="value-group">
-                        <div class="label">USD/TRY</div>
-                        <div id="usdtry" class="value">Loading...</div>
-                    </div>
-                    <div class="value-group">
-                        <div class="label">EUR/TRY</div>
-                        <div id="eurtry" class="value">Loading...</div>
-                    </div>
-                </div>
-            </div>
-            <div class="timestamp" id="lastUpdate"></div>
-        </section>
-
-        <!-- Markets Section -->
-        <section id="markets" class="section">
-            <h2>Market Details</h2>
-            <div class="markets-grid">
-                <div class="market-card">
-                    <h3>Stock Markets</h3>
-                    <div class="market-content" id="stockMarkets">
-                        <!-- Will be populated by JS -->
-                    </div>
-                </div>
-                <div class="market-card">
-                    <h3>Commodities</h3>
-                    <div class="market-content" id="commodities">
-                        <!-- Will be populated by JS -->
-                    </div>
-                </div>
-                <div class="market-card">
-                    <h3>Crypto</h3>
-                    <div class="market-content" id="crypto">
-                        <!-- Will be populated by JS -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- News Section -->
-        <section id="news" class="section">
-            <h2>Latest Financial News</h2>
-            <div class="news-grid" id="newsContainer">
-                <!-- Will be populated by JS -->
-            </div>
-        </section>
-
-        <!-- Analysis Section -->
-        <section id="analysis" class="section">
-            <h2>Market Analysis</h2>
-            <div class="analysis-grid">
-                <div class="analysis-card">
-                    <h3>Technical Analysis</h3>
-                    <div id="technicalAnalysis"></div>
-                </div>
-                <div class="analysis-card">
-                    <h3>Market Sentiment</h3>
-                    <div id="marketSentiment"></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4>Disclaimer</h4>
-                <p>All market data is delayed by 15 minutes. For informational purposes only.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>Email: info@findash.com</p>
+    <div class="dashboard">
+        <!-- BIST Widget -->
+        <div class="widget">
+            <div class="header">BIST 100</div>
+            <div class="value-group">
+                <div class="label">TRY Value</div>
+                <div class="value bist-value">Loading...</div>
             </div>
         </div>
-    </footer>
 
-    <script src="mrkdat_script.js"></script>
+        <!-- GLRMK Widget -->
+        <div class="widget">
+            <div class="header">GLRMK</div>
+            <div class="value-group">
+                <div class="label">Current Price</div>
+                <div class="value glrmk-value">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Forex Widget -->
+        <div class="widget">
+            <div class="header">Exchange Rates</div>
+            <div class="value-group">
+                <div class="label">USD/TRY</div>
+                <div id="usdtry" class="value">Loading...</div>
+            </div>
+            <div class="value-group">
+                <div class="label">EUR/TRY</div>
+                <div id="eurtry" class="value">Loading...</div>
+            </div>
+        </div>
+
+        <div class="timestamp" id="lastUpdate"></div>
+    </div>
+
+    <script src="marketscript.js"></script>
 </body>
 </html>
