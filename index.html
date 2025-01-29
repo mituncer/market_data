@@ -1,47 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Dashboard</title>
-    <link rel="stylesheet" href="mrkdat_styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .data-container {
+      margin-top: 20px;
+    }
+    .data-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- BIST Widget -->
-        <div class="widget">
-            <div class="header">BIST 100</div>
-            <div class="value-group">
-                <div class="label">TRY Value</div>
-                <div class="value bist-value">Loading...</div>
-            </div>
-        </div>
-
-        <!-- GLRMK Widget -->
-        <div class="widget">
-            <div class="header">GLRMK</div>
-            <div class="value-group">
-                <div class="label">Current Price</div>
-                <div class="value glrmk-value">Loading...</div>
-            </div>
-        </div>
-
-        <!-- Forex Widget -->
-        <div class="widget">
-            <div class="header">Exchange Rates</div>
-            <div class="value-group">
-                <div class="label">USD/TRY</div>
-                <div id="usdtry" class="value">Loading...</div>
-            </div>
-            <div class="value-group">
-                <div class="label">EUR/TRY</div>
-                <div id="eurtry" class="value">Loading...</div>
-            </div>
-        </div>
-
-        <div class="timestamp" id="lastUpdate"></div>
+  <h1>Market Data</h1>
+  <div class="data-container">
+    <div class="data-item">
+      <strong>BIST 100:</strong>
+      <span id="bist100">Loading...</span>
     </div>
+    <div class="data-item">
+      <strong>GLRMK:</strong>
+      <span id="glrmk">Loading...</span>
+    </div>
+  </div>
 
-    <script src="marketscript.js"></script>
+  <script>
+    // Replace with your Alpha Vantage API key
+    const API_KEY = 'X6853ILDPKTRRMEL';
+
+    // Fetch BIST 100 data
+    function fetchBIST100() {
+      const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=BIST.XU100&apikey=${API_KEY}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const latestDate = Object.keys(data['Time Series (Daily)'])[0];
+          const latestData = data['Time Series (Daily)'][latestDate];
+          const price = latestData['4. close'];
+          document.getElementById('bist100').textContent = `${price} (as of ${latestDate})`;
+        })
+        .catch(error => {
+          console.error('Error fetching BIST 100 data:', error);
+          document.getElementById('bist100').textContent = 'Failed to load data';
+        });
+    }
+
+    // Fetch GLRMK data (replace with your logic)
+    function fetchGLRMK() {
+      // Example: Mock data for GLRMK
+      const mockPrice = 1000; // Replace with actual API call or scraping logic
+      document.getElementById('glrmk').textContent = `${mockPrice} (mock data)`;
+    }
+
+    // Fetch data on page load
+    fetchBIST100();
+    fetchGLRMK();
+  </script>
 </body>
 </html>
